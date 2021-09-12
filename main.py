@@ -1,5 +1,7 @@
 from utils.db import insert_into, does_id_exist
-#from utils.email import 
+from utils.email_sender import send_email
+import config
+
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -32,10 +34,10 @@ def clean_the_string(element):
 
 
 f  = open("result.txt", "w+")
-towns = ['wanaque','butler','kinnelon','pompton','riverdale']
+towns = config.towns
+entries = []
 
 for item in soup.select('#search-results li'):
-
     pid = item.attrs['data-pid']
     name = clean_the_string(item.find('h3'))
     hood = clean_the_string(item.find('span',class_='result-hood'))
@@ -43,7 +45,9 @@ for item in soup.select('#search-results li'):
     dist = clean_the_string(item.find('span',class_='maptag'))
     href = item.find('a',class_='result-image').attrs['href']
 
-    if any([x in  hood.lower() for x in towns]) or hood == '':
+    if any([x not in hood.lower() for x in towns]) or hood == '':
+        inDb = does_id_exist(pid)
+
         f.write(name + ' - ')
         f.write(hood + ' - ')
         f.write(price + ' - ')
@@ -52,19 +56,27 @@ for item in soup.select('#search-results li'):
         f.write(pid)
         f.write('\n')
 
-        if does_id_exist(pid):
-            print(f'{name}: is in the database')
-        else:
-            print(f'{name}: is new')
+        if not inDb:
             insert_into(pid)
 
+        entry = {
+            "title": name,
+            "town": hood,
+            "link": href,
+            "price": price,
+            "distance": dist,
+            "isNew": not inDb
+        }
 
-        
+        entries.append(entry)
 
 
+    
 f.close()
 
 driver.quit()
+
+send_email(entries)
 
 
 print('\nComplete\n')

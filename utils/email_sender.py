@@ -1,18 +1,42 @@
 import smtplib, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from string import Template
 
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
+def send_email(craigdata):
 
-def table_maker():
-  return
+  content = table_maker(craigdata)
+  send_message(content)
 
+  return 1
 
+def table_maker(craigdata):
 
-def send_email ():
+  temp = Template('''
+    <tr>
+        <td>$num</td>
+        <td><a href="$link">$title</a></td>
+        <td>$town</td>
+        <td>$price</td>
+        <td>$distance</td>
+        <td>$new</td>
+    </tr>
+  ''')
+
+  table = ''
+  counter = 1
+  for item in craigdata:
+    tr = temp.substitute(num=counter,link=item["link"], title=item["title"], town=item["town"],price=item["price"],distance=item["distance"],new= 'Yes' if item['isNew'] else '')
+    table = table + tr
+    counter = counter + 1
+
+  return table
+
+def send_message(content):
   sender_email = config.sender_email
   receiver_email = config.receiver_email
   password = config.password
@@ -28,43 +52,39 @@ def send_email ():
         <head>
         <style>
             table {
-              font-family: arial, sans-serif;
-              border-collapse: collapse;
-              width: 100%;
+              font-family: arial, sans-serif\;
+              border-collapse: collapse\;
             }
             
             td, th {
-              border: 1px solid #dddddd;
-              text-align: left;
-              padding: 8px;
+              border: 1px solid #dddddd\;
+              text-align: left\;
+              padding: 8px\;
             }
             
             tr:nth-child(even) {
-              background-color: #dddddd;
+              background-color: #dddddd\;
             }
             </style>
         </head>
         <body>
-            <h3> No New Listings Found</h3>
-
-            <table style="width: max-content;">
-                <tr>
-                  <th>Name</th>
-                  <th>Town</th>
-                  <th>Price</th>
-                  <th>Distance</th>
-                </tr>
-                <tr>
-                  <td><a href="https://newjersey.craigslist.org/roo/d/wayne-private-room/7359826831.html">Private Room</a></td>
-                  <td>(Pompton Lakes)</td>
-                  <td>$150</td>
-                  <td>2.9Mi</td>
-                </tr>
-              </table>
+            <table style="width: max-content">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Town</th>
+              <th>Price</th>
+              <th>Distance</th>
+              <th>Is New</th>
+            </tr>
+              %s
+            </table>
 
         </body>
     </html>
-  """
+  """ % content 
+
+  html = html.replace("\\",'')
 
   # Turn these into plain/html MIMEText objects
   body = MIMEText(html, "html")
@@ -83,4 +103,22 @@ def send_email ():
 
 
 if __name__ == "__main__":
-  send_email()
+
+  entry1 = {
+    "title": 'Room in Franklin Lakes',
+    "town": '(Franklin Lakes)',
+    "link": 'https://wwww.google.com',
+    "price": '$420',
+    "distance": '5Mi'
+  }
+
+  entry2 = {
+    "title": 'Room in Hoboken',
+    "town": '(Hoboken)',
+    "link": 'https://wwww.google.com',
+    "price": '$420',
+    "distance": '5Mi'
+  }
+  
+  send_email([entry1,entry2])
+  
