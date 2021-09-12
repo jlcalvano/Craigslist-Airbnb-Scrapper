@@ -1,4 +1,5 @@
-from db import insert_into, does_id_exist
+from utils.db import insert_into, does_id_exist
+#from utils.email import 
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -38,12 +39,16 @@ for item in soup.select('#search-results li'):
     pid = item.attrs['data-pid']
     name = clean_the_string(item.find('h3'))
     hood = clean_the_string(item.find('span',class_='result-hood'))
+    price = clean_the_string(item.find('span',class_='result-price'))
+    dist = clean_the_string(item.find('span',class_='maptag'))
+    href = item.find('a',class_='result-image').attrs['href']
 
     if any([x in  hood.lower() for x in towns]) or hood == '':
         f.write(name + ' - ')
         f.write(hood + ' - ')
-        f.write(clean_the_string(item.find('span',class_='result-price'))+ ' - ')
-        f.write(clean_the_string(item.find('span',class_='maptag'))+ ' - ')
+        f.write(price + ' - ')
+        f.write(dist + ' - ')
+        f.write(href + ' - ')
         f.write(pid)
         f.write('\n')
 
