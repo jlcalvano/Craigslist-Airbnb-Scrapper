@@ -1,7 +1,9 @@
+from db import insert_into
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
-import re
+from datetime import date 
 
 DRIVER_PATH = "driver\chromedriver.exe"
 
@@ -43,7 +45,12 @@ for item in soup.select('#search-results li'):
         f.write(item.attrs['data-pid'])
         f.write('\n')
 
+        insert_into(item.attrs['data-pid'])
+
 
 f.close()
 
 driver.quit()
+
+
+print('\nComplete\n')
