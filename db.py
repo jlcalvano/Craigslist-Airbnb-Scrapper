@@ -17,8 +17,6 @@ def initalize():
 
     return con, cur
 
-
-
 def insert_into(room_id):
     con, cur = initalize()
 
@@ -33,13 +31,24 @@ def insert_into(room_id):
 
     return cur.lastrowid
 
+def does_id_exist(room_id):
+    con, cur = initalize()
+
+    cur.execute(f"select * from rooms_seen where room_id = {room_id}")
+    
+    if cur.fetchone():
+        return True
+    else:
+        return False
+
 
 if __name__ == "__main__":
     # execute only if run as a script
-    print(insert_into(7359826833,'2021-09-12'))
+    print(insert_into(7359826833))
 
     con, cur = initalize()
 
-    cur.execute("select * from rooms_seen")
-    print(cur.fetchall())
+    cur.execute(f"select * from rooms_seen where room_id = {7359826831}")
+    
+    print(cur.fetchone())
     

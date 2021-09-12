@@ -1,4 +1,4 @@
-from db import insert_into
+from db import insert_into, does_id_exist
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -35,17 +35,26 @@ towns = ['wanaque','butler','kinnelon','pompton','riverdale']
 
 for item in soup.select('#search-results li'):
 
+    pid = item.attrs['data-pid']
+    name = clean_the_string(item.find('h3'))
     hood = clean_the_string(item.find('span',class_='result-hood'))
 
     if any([x in  hood.lower() for x in towns]) or hood == '':
-        f.write(clean_the_string(item.find('h3')) + ' - ')
+        f.write(name + ' - ')
         f.write(hood + ' - ')
         f.write(clean_the_string(item.find('span',class_='result-price'))+ ' - ')
         f.write(clean_the_string(item.find('span',class_='maptag'))+ ' - ')
-        f.write(item.attrs['data-pid'])
+        f.write(pid)
         f.write('\n')
 
-        insert_into(item.attrs['data-pid'])
+        if does_id_exist(pid):
+            print(f'{name}: is in the database')
+        else:
+            print(f'{name}: is new')
+            insert_into(pid)
+
+
+        
 
 
 f.close()
