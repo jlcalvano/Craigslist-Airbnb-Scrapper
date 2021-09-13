@@ -1,6 +1,7 @@
 import sqlite3
 
 
+
 def initalize():
     con = sqlite3.connect('database/rooms.db')
     cur = con.cursor()

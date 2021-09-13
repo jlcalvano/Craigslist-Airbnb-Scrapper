@@ -2,14 +2,15 @@ from utils.db import insert_into, does_id_exist
 from utils.email_sender import send_email
 import config
 
+import os
+os.chdir(r"C:\Users\jlcal\Desktop\Projects\craigslist-room-share-scrapper")
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
-from datetime import date 
 
 DRIVER_PATH = "driver\chromedriver.exe"
-
+print(os.path.dirname(os.getcwd()))
 chrome_options = Options()
 chrome_options.add_argument("--disable-extensions")
 chrome_options.add_argument("--disable-gpu")
@@ -18,7 +19,7 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument('log-level=3')
 # chrome_options.headless = True # also works
 
-driver = webdriver.Chrome(executable_path=DRIVER_PATH,options=chrome_options)
+driver = webdriver.Chrome(executable_path=str(DRIVER_PATH),options=chrome_options)
 driver.get('https://newjersey.craigslist.org/search/roo?bundleDuplicates=1&search_distance=10&postal=07444&max_price=900&availabilityMode=0')
 
 soup = BeautifulSoup(driver.page_source,'html.parser')
