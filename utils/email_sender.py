@@ -29,6 +29,17 @@ def table_maker(craigdata):
 
   table = ''
   counter = 1
+  new_listings = []
+  
+  for item in craigdata:
+    if item['isNew']:
+        new_listings.append(item)
+        craigdata.pop(item)
+  
+  
+  craigdata = new_listings + craigdata
+    
+  
   for item in craigdata:
     tr = temp.substitute(num=counter,link=item["link"], title=item["title"], town=item["town"],price=item["price"],distance=item["distance"],new= 'Yes' if item['isNew'] else '')
     table = table + tr
