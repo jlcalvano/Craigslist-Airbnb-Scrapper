@@ -59,7 +59,7 @@ for item in soup.select('#search-results li'):
 
         if not inDb:
             insert_into(pid)
-
+            
         entry = {
             "title": name,
             "town": hood,

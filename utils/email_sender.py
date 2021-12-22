@@ -34,7 +34,7 @@ def table_maker(craigdata):
   for item in craigdata:
     if item['isNew']:
         new_listings.append(item)
-        craigdata.pop(item)
+        craigdata.remove(item)
   
   
   craigdata = new_listings + craigdata
