@@ -7,14 +7,49 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
-def send_email(craigdata):
+def send_email(craigdata, airbnbdata):
 
-  content = table_maker(craigdata)
+  content = craig_table_maker(craigdata)
+  content = content + airbnb_table_maker(airbnbdata)
   send_message(content)
 
   return 1
 
-def table_maker(craigdata):
+def airbnb_table_maker(airbnbdata):
+    temp = Template('''
+      <tr>
+          <td>$num</td>
+          <td><a href="$url">$title</a></td>
+          <td>$price</td>
+          <td>$rating</td>
+          <td>$reviews</td>
+      </tr>
+    ''')
+
+    table = ''
+    counter = 1
+
+    for item in airbnbdata:
+      tr = temp.substitute(num=counter,url=item["url"], title=item["title"],price=item["price"],rating=item["rating"],reviews=item["review"])
+      table = table + tr
+      counter = counter + 1
+
+    message = """
+              <h2> Airbnb Current Listings </h2>
+              <table style="width: max-content">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Rating</th>
+                <th>Reviews</th>
+              </tr>
+              %s
+              </table>
+    """ % table 
+    return message
+
+def craig_table_maker(craigdata):
 
   temp = Template('''
     <tr>
@@ -30,22 +65,35 @@ def table_maker(craigdata):
   table = ''
   counter = 1
   new_listings = []
-  
+
   for item in craigdata:
     if item['isNew']:
         new_listings.append(item)
         craigdata.remove(item)
-  
-  
+
+
   craigdata = new_listings + craigdata
-    
-  
+
   for item in craigdata:
     tr = temp.substitute(num=counter,link=item["link"], title=item["title"], town=item["town"],price=item["price"],distance=item["distance"],new= 'Yes' if item['isNew'] else '')
     table = table + tr
     counter = counter + 1
-
-  return table
+  
+  message = """
+            <h2> Craigslist Current Listings </h2>
+            <table style="width: max-content">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Town</th>
+              <th>Price</th>
+              <th>Distance</th>
+              <th>Is New</th>
+            </tr>
+            %s
+            </table>
+  """ % table 
+  return message
 
 def send_message(content):
   sender_email = config.sender_email
@@ -79,23 +127,17 @@ def send_message(content):
             </style>
         </head>
         <body>
-            <table style="width: max-content">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Town</th>
-              <th>Price</th>
-              <th>Distance</th>
-              <th>Is New</th>
-            </tr>
-              %s
-            </table>
-
+           %s
         </body>
     </html>
   """ % content 
 
+  html = html
   html = html.replace("\\",'')
+
+  text_file = open("html.txt", "w", encoding="utf-8")
+  text_file.write(html)
+  text_file.close()
 
   # Turn these into plain/html MIMEText objects
   body = MIMEText(html, "html")

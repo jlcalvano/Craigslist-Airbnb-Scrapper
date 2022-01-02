@@ -8,6 +8,7 @@ os.chdir(r"C:\Users\jlcal\Desktop\Projects\craigslist-room-share-scrapper")
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
+import airbnb
 
 DRIVER_PATH = "driver\chromedriver.exe"
 print(os.path.dirname(os.getcwd()))
@@ -36,7 +37,7 @@ def clean_the_string(element):
 
 f  = open("result.txt", "w+")
 towns = config.towns
-entries = []
+craig_entries = []
 
 for item in soup.select('#search-results li'):
     pid = item.attrs['data-pid']
@@ -69,7 +70,7 @@ for item in soup.select('#search-results li'):
             "isNew": not inDb
         }
 
-        entries.append(entry)
+        craig_entries.append(entry)
 
 
     
@@ -77,7 +78,9 @@ f.close()
 
 driver.quit()
 
-send_email(entries)
+airbnd_entries = airbnb.main()
+
+send_email(craig_entries, airbnd_entries)
 
 
 print('\nComplete\n')
