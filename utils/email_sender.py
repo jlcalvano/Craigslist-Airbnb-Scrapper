@@ -35,7 +35,7 @@ def airbnb_table_maker(airbnbdata):
       counter = counter + 1
 
     message = """
-              <h2> Airbnb Current Listings </h2>
+              <h2>Airbnb Monthly Current Listings</h2>
               <table style="width: max-content">
               <tr>
                 <th>#</th>
@@ -80,7 +80,7 @@ def craig_table_maker(craigdata):
     counter = counter + 1
   
   message = """
-            <h2> Craigslist Current Listings </h2>
+            <h2>Craigslist Current Listings</h2>
             <table style="width: max-content">
             <tr>
               <th>#</th>
@@ -134,10 +134,6 @@ def send_message(content):
 
   html = html
   html = html.replace("\\",'')
-
-  text_file = open("html.txt", "w", encoding="utf-8")
-  text_file.write(html)
-  text_file.close()
 
   # Turn these into plain/html MIMEText objects
   body = MIMEText(html, "html")

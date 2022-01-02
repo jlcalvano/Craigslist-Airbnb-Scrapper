@@ -35,7 +35,6 @@ def clean_the_string(element):
     return text
 
 
-f  = open("result.txt", "w+")
 towns = config.towns
 craig_entries = []
 
@@ -49,15 +48,6 @@ for item in soup.select('#search-results li'):
 
     if any([x not in hood.lower() for x in towns]) or hood == '':
         inDb = does_id_exist(pid)
-
-        f.write(name + ' - ')
-        f.write(hood + ' - ')
-        f.write(price + ' - ')
-        f.write(dist + ' - ')
-        f.write(href + ' - ')
-        f.write(pid)
-        f.write('\n')
-
         if not inDb:
             insert_into(pid)
             
@@ -71,10 +61,6 @@ for item in soup.select('#search-results li'):
         }
 
         craig_entries.append(entry)
-
-
-    
-f.close()
 
 driver.quit()
 
