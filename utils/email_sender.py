@@ -23,6 +23,7 @@ def airbnb_table_maker(airbnbdata):
           <td>$price</td>
           <td>$rating</td>
           <td>$reviews</td>
+          <td>$usedBefore</td>
       </tr>
     ''')
 
@@ -30,7 +31,7 @@ def airbnb_table_maker(airbnbdata):
     counter = 1
 
     for item in airbnbdata:
-      tr = temp.substitute(num=counter,url=item["url"], title=item["title"],price=item["price"],rating=item["rating"],reviews=item["review"])
+      tr = temp.substitute(num=counter,url=item["url"], title=item["title"],price=item["price"],rating=item["rating"],reviews=item["review"],usedBefore= 'Yes' if item["usedBefore"] else '')
       table = table + tr
       counter = counter + 1
 
@@ -43,6 +44,7 @@ def airbnb_table_maker(airbnbdata):
                 <th>Price</th>
                 <th>Rating</th>
                 <th>Reviews</th>
+                <th>Used Before</th>
               </tr>
               %s
               </table>

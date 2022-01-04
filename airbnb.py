@@ -29,7 +29,6 @@ def get_airbnb_results(start_date, end_date):
 
     url = f'https://www.airbnb.com/s/Butler--New-Jersey--United-States/homes?date_picker_type=calendar&query=Butler%2C%20New%20Jersey%2C%20United%20States&checkin={start_date}&checkout={end_date}&tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&flexible_trip_lengths%5B%5D=weekend_trip&price_max=1400&search_type=filter_change'
 
-    print(url)
     driver.implicitly_wait(90000) # seconds
     driver.get(url)
     
@@ -46,7 +45,8 @@ def get_airbnb_results(start_date, end_date):
                 "url":"",
                 "price":"",
                 "rating":"",
-                "review":""
+                "review":"",
+                "usedBefore": False
             }
             try:
                 airbnb_entry["id"]= re.search(r'\d+((.|,)\d+)?',item.find("meta", {"itemprop":"url"})['content']).group()
@@ -64,7 +64,7 @@ def get_airbnb_results(start_date, end_date):
                 print("URL : Not Found")
             
             try:
-                 airbnb_entry["price"]= re.search(r'\d+((.|,)\d+)?',item.find("div", class_="pe02y3d").get_text()).group()
+                 airbnb_entry["price"]= "$"+ re.search(r'\d+((.|,)\d+)?',item.find("div", class_="pe02y3d").get_text()).group()
             except:
                 print("Price : Not Found")
 
@@ -78,6 +78,11 @@ def get_airbnb_results(start_date, end_date):
                 airbnb_entry["review"]= re.search(r'\d+((.|,)\d+)?',item.find("span",class_="rapc1b3").get_text()).group()
             except:
                 print("Review : Not Found")
+
+            try:
+                airbnb_entry["usedBefore"] = True if str(airbnb_entry["id"]) in ['50515640','50084451'] else False
+            except:
+                pass
 
             entries.append(airbnb_entry)
             airbnb_entry = {}
