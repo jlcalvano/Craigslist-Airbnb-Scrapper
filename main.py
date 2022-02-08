@@ -53,7 +53,7 @@ for item in soup.select('#search-results li'):
             
         entry = {
             "title": name,
-            "town": hood,
+            "town": hood.title(),
             "link": href,
             "price": price,
             "distance": dist,
