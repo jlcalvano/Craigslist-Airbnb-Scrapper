@@ -7,11 +7,13 @@ os.chdir(r"C:\Users\jlcal\Desktop\Projects\craigslist-room-share-scrapper")
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import airbnb
 import re
 
 DRIVER_PATH = "driver\chromedriver.exe"
+ser = Service(DRIVER_PATH)
 print(os.path.dirname(os.getcwd()))
 chrome_options = Options()
 chrome_options.add_argument("--disable-extensions")
@@ -21,7 +23,7 @@ chrome_options.add_argument("--headless")
 chrome_options.add_argument('log-level=3')
 # chrome_options.headless = True # also works
 
-driver = webdriver.Chrome(executable_path=str(DRIVER_PATH),options=chrome_options)
+driver = webdriver.Chrome(service=ser,options=chrome_options)
 driver.get('https://newjersey.craigslist.org/search/hhh?lat=40.99104221112936&lon=-74.33555603027345&excats=2-17-21-1-17-7-34-22-22-1&search_distance=4&max_price=1500&availabilityMode=0&sale_date=all+dates')
 
 soup = BeautifulSoup(driver.page_source,'html.parser')
