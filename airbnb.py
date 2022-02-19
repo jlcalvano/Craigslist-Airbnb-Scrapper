@@ -15,13 +15,13 @@ from dateutil import relativedelta
 
 DRIVER_PATH = "driver\chromedriver.exe"
 ser = Service(DRIVER_PATH)
+
 def get_airbnb_results(start_date, end_date):
     print("\nRunning...")
 
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--disable-gpu")
-    #chrome_options.add_argument("--no-sandbox") # linux only
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('log-level=3')
 
@@ -67,18 +67,18 @@ def get_airbnb_results(start_date, end_date):
                 print("URL : Not Found")
             
             try:
-                 airbnb_entry["price"]= "$"+ re.search(r'\d+((.|,)\d+)?',item.find("div", class_="pe02y3d").get_text()).group()
+                 airbnb_entry["price"]= "$"+ re.search(r'\d+((.|,)\d+)?',item.find("span", class_="_tyxjp1").get_text()).group()
             except:
                 print("Price : Not Found")
 
             try:
-                rating = item.find("span",class_="r1g2zmv6 dir dir-ltr").get_text()
+                rating = item.find("span",class_="rpz7y38 dir dir-ltr").get_text()
                 airbnb_entry["rating"]= rating
             except:
                 print("Rating : Not Found")
 
             try:
-                airbnb_entry["review"]= re.search(r'\d+((.|,)\d+)?',item.find("span",class_="rapc1b3").get_text()).group()
+                airbnb_entry["review"]= re.search(r'\d+((.|,)\d+)?',item.find("span",class_="r1xr6rtg dir dir-ltr").get_text()).group()
             except:
                 print("Review : Not Found")
 

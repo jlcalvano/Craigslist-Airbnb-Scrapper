@@ -43,11 +43,15 @@ craig_entries = []
 for item in soup.select('#search-results li'):
     pid = item.attrs['data-pid']
     name = clean_the_string(item.find('h3'))
-    hood = re.search(r"(?<=\().+?(?=\))",str(item.find('span',class_='result-hood'))).group()
+    try:
+        hood = re.search(r"(?<=\().+?(?=\))",str(item.find('span',class_='result-hood'))).group()
+    except:
+        hood = ''
+        pass
     price = clean_the_string(item.find('span',class_='result-price'))
     dist = clean_the_string(item.find('span',class_='maptag'))
     href = item.find('a',class_='result-image').attrs['href']
-
+    
     if any([x not in hood.lower() for x in towns]) or hood == '':
         inDb = does_id_exist(pid)
         if not inDb:
