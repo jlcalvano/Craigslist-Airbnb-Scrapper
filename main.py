@@ -3,7 +3,7 @@ from utils.email_sender import send_email
 import config
 
 import os
-os.chdir(r"C:\Users\jlcal\Desktop\Projects\craigslist-room-share-scrapper")
+os.chdir(r"C:\Users\jlcal\Desktop\Projects\craigslist-airbnb-scrapper")
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -68,6 +68,19 @@ for item in soup.select('#search-results li'):
 
         craig_entries.append(entry)
 
+for item in craig_entries:
+    driver.get(item["link"])
+    soup = BeautifulSoup(driver.page_source,'html.parser')
+    strPostedDate = clean_the_string(soup.find('p',class_="postinginfo reveal")).replace('Posted','').strip()
+
+    if strPostedDate == 'About A Month Ago':
+        strPostedDate = '~ 1 Month'
+
+
+    item.update({
+       "posted": strPostedDate
+    })
+    
 driver.quit()
 
 airbnd_entries = airbnb.main()
