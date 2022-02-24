@@ -78,7 +78,7 @@ def craig_table_maker(craigdata):
   craigdata = new_listings + craigdata
 
   for item in craigdata:
-    tr = temp.substitute(num=counter,link=item["link"], title=item["title"][:20], town=item["town"],price=item["price"],distance=item["distance"], posted=item["posted"],new= 'Yes' if item['isNew'] else '')
+    tr = temp.substitute(num=counter,link=item["link"], title=item["title"][:30], town=item["town"][:20],price=item["price"],distance=item["distance"], posted=item["posted"],new= 'Yes' if item['isNew'] else '')
     table = table + tr
     counter = counter + 1
   
