@@ -40,7 +40,11 @@ def clean_the_string(element):
 towns = config.towns
 craig_entries = []
 
-for item in soup.select('#search-results li'):
+res = soup.select_one('#search-results')
+
+for item in res.findChildren(recursive=False):
+    if item.name != 'li':
+        break
     pid = item.attrs['data-pid']
     name = clean_the_string(item.find('h3'))
     try:

@@ -30,16 +30,17 @@ def get_airbnb_results(start_date, end_date):
 
     url = f'https://www.airbnb.com/s/Butler--New-Jersey--United-States/homes?date_picker_type=calendar&query=Butler%2C%20New%20Jersey%2C%20United%20States&checkin={start_date}&checkout={end_date}&tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&flexible_trip_lengths%5B%5D=weekend_trip&price_max=1400&search_type=filter_change'
 
-    driver.implicitly_wait(90000) # seconds
     driver.get(url)
     
-    
-    #WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'l1axmu71 dir dir-ltr')))
+    try:
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "_8ssblpx")))
+    except:
+        raise
+    finally:
+        time.sleep(3)
+        soup = BeautifulSoup(driver.page_source,'lxml')
 
-    time.sleep(3)
-    soup = BeautifulSoup(driver.page_source,'lxml')
-
-    
     entries = []
     for item in soup.find_all("div", class_="_8ssblpx"):
             airbnb_entry = {
@@ -116,3 +117,6 @@ def main():
     print(f"Number of Attempts: {attempts}")
     print()
     return results
+
+if __name__ == '__main__':
+    main()
