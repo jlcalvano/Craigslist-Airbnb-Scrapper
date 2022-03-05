@@ -16,8 +16,15 @@ from dateutil import relativedelta
 DRIVER_PATH = "driver\chromedriver.exe"
 ser = Service(DRIVER_PATH)
 
+def clean_the_string(element):
+    if element:
+        text = element.getText().strip().title()
+    else:
+        text = ''
+    return text
+
 def get_airbnb_results(start_date, end_date):
-    print("\nRunning...")
+    print("\nRunning Airbnb...\n")
 
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
@@ -34,13 +41,15 @@ def get_airbnb_results(start_date, end_date):
     
     try:
         WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "_8ssblpx")))
+            EC.presence_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div[1]/div/div/div/div/div/div[1]/div/div[1]/main/div[2]/div/div[3]/div/div/div/div/div/div/div[2]/div/div/div/div/div/div[1]/div/div/div[2]/div/meta[1]")))
     except:
         raise
     finally:
         time.sleep(3)
-        soup = BeautifulSoup(driver.page_source,'lxml')
-
+        print("Airbnb found")
+        soup = BeautifulSoup(driver.page_source,'html.parser')
+        print(len(driver.page_source))
+        
     entries = []
     for item in soup.find_all("div", class_="_8ssblpx"):
             airbnb_entry = {
@@ -50,7 +59,7 @@ def get_airbnb_results(start_date, end_date):
                 "price":"",
                 "rating":"",
                 "review":"",
-                "usedBefore": False
+                "real-price": False
             }
             try:
                 airbnb_entry["id"]= re.search(r'\d+((.|,)\d+)?',item.find("meta", {"itemprop":"url"})['content']).group()
@@ -67,10 +76,10 @@ def get_airbnb_results(start_date, end_date):
             except:
                 print("URL : Not Found")
             
-            try:
-                 airbnb_entry["price"]= "$"+ re.search(r'\d+((.|,)\d+)?',item.find("span", class_="_tyxjp1").get_text()).group()
-            except:
-                print("Price : Not Found")
+            # try:
+                 # airbnb_entry["price"]= "$"+ re.search(r'\d+((.|,)\d+)?',item.find("span", class_="_tyxjp1").get_text()).group()
+            # except:
+                # print("Price : Not Found")
 
             try:
                 rating = item.find("span",class_="rpz7y38 dir dir-ltr").get_text()
@@ -102,14 +111,49 @@ def main():
     start_date = start_date.isoformat()
     end_date = end_date.isoformat()
 
-    results = None
+    results = []
     attempts = 0
-    while results is None and attempts < 3:
+    while len(results) == 0 and attempts < 3:
         try: 
             attempts = attempts + 1
             results = get_airbnb_results(start_date, end_date)
         except:
             pass
+    
+    
+    if results:
+        chrome_options = Options()
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument('log-level=3')
+        driver = webdriver.Chrome(service=ser,options=chrome_options)
+    
+    for item in results:
+   
+        driver.get("https://" + item["url"])
+        item["town"] = ""
+        try:
+            WebDriverWait(driver, 20).until(
+               EC.element_to_be_clickable((By.CLASS_NAME, '_lwijk8d'))
+            )
+            WebDriverWait(driver, 20).until(
+               EC.visibility_of_element_located((By.CLASS_NAME, '_1k4xcdh'))
+            )
+            WebDriverWait(driver, 20).until(
+               EC.visibility_of_element_located((By.CLASS_NAME, '_8vvkqm3'))
+            )
+        except:
+            print("exception")
+            continue
+        finally:
+            print("listing page found")
+            soup = BeautifulSoup(driver.page_source,'html.parser')
+            
+        item["town"] = clean_the_string(soup.find('span',class_="_8vvkqm3")).strip().split(",")[0]
+        item["price"] = clean_the_string(soup.find('span',class_="_1k4xcdh")).strip()
+        item["real-price"] = True
+
 
     print()
     print(f"Length of Results: {len(results)}")
