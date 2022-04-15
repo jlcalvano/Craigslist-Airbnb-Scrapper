@@ -38,10 +38,9 @@ def get_airbnb_results(start_date, end_date):
     url = f'https://www.airbnb.com/s/Butler--New-Jersey--United-States/homes?date_picker_type=calendar&query=Butler%2C%20New%20Jersey%2C%20United%20States&checkin={start_date}&checkout={end_date}&tab_id=home_tab&refinement_paths%5B%5D=%2Fhomes&flexible_trip_lengths%5B%5D=weekend_trip&price_max=1400&search_type=filter_change'
 
     driver.get(url)
-    
     try:
         WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, "/html/body/div[5]/div/div/div[1]/div/div/div/div/div/div[1]/div/div[1]/main/div[2]/div/div[3]/div/div/div/div/div/div/div[2]/div/div/div/div/div/div[1]/div/div/div[2]/div/meta[1]")))
+            EC.presence_of_element_located((By.CLASS_NAME, "_gig1e7")))
     except:
         raise
     finally:
@@ -49,9 +48,9 @@ def get_airbnb_results(start_date, end_date):
         print("Airbnb found")
         soup = BeautifulSoup(driver.page_source,'html.parser')
         print(len(driver.page_source))
-        
+
     entries = []
-    for item in soup.find_all("div", class_="_8ssblpx"):
+    for item in soup.find_all("div", class_="_gig1e7"):
             airbnb_entry = {
                 "id":"",
                 "title":"",
@@ -75,11 +74,6 @@ def get_airbnb_results(start_date, end_date):
                  airbnb_entry["url"]= item.find("meta", {"itemprop":"url"})['content']
             except:
                 print("URL : Not Found")
-            
-            # try:
-                 # airbnb_entry["price"]= "$"+ re.search(r'\d+((.|,)\d+)?',item.find("span", class_="_tyxjp1").get_text()).group()
-            # except:
-                # print("Price : Not Found")
 
             try:
                 rating = item.find("span",class_="rpz7y38 dir dir-ltr").get_text()
@@ -91,11 +85,6 @@ def get_airbnb_results(start_date, end_date):
                 airbnb_entry["review"]= re.search(r'\d+((.|,)\d+)?',item.find("span",class_="r1xr6rtg dir dir-ltr").get_text()).group()
             except:
                 print("Review : Not Found")
-
-            try:
-                airbnb_entry["usedBefore"] = True if str(airbnb_entry["id"]) in ['50515640','50084451'] else False
-            except:
-                pass
 
             entries.append(airbnb_entry)
             airbnb_entry = {}
@@ -113,11 +102,14 @@ def main():
 
     results = []
     attempts = 0
+
     while len(results) == 0 and attempts < 3:
-        try: 
+        try:
+            print(f'Attempt: {attempts}') 
             attempts = attempts + 1
             results = get_airbnb_results(start_date, end_date)
         except:
+            attempts = attempts + 1
             pass
     
     
@@ -133,25 +125,24 @@ def main():
    
         driver.get("https://" + item["url"])
         item["town"] = ""
-        try:
-            WebDriverWait(driver, 20).until(
-               EC.element_to_be_clickable((By.CLASS_NAME, '_lwijk8d'))
+
+        print(item["title"])
+        
+        try: 
+            WebDriverWait(driver, 10).until(
+                EC.visibility_of_element_located((By.CSS_SELECTOR, '#site-content > div > div:nth-child(1) > div:nth-child(3) > div > div._1s21a6e2 > div > div > div:nth-child(1) > div > div > div > div > div > div > div > div._c7v1se > div:nth-child(1) > div > div > div > span._tyxjp1'))
             )
-            WebDriverWait(driver, 20).until(
-               EC.visibility_of_element_located((By.CLASS_NAME, '_1k4xcdh'))
-            )
-            WebDriverWait(driver, 20).until(
-               EC.visibility_of_element_located((By.CLASS_NAME, '_8vvkqm3'))
-            )
+        except Exception as e: 
+            print('exception')
+            raise
         except:
-            print("exception")
+            print("Uncaught")
             continue
         finally:
-            print("listing page found")
             soup = BeautifulSoup(driver.page_source,'html.parser')
             
         item["town"] = clean_the_string(soup.find('span',class_="_8vvkqm3")).strip().split(",")[0]
-        item["price"] = clean_the_string(soup.find('span',class_="_1k4xcdh")).strip()
+        item["price"] = float(clean_the_string(soup.find('span',class_="_tyxjp1")).strip().replace("$","").replace(",",""))
         item["real-price"] = True
 
 

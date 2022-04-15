@@ -3,6 +3,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from string import Template
 
+import locale
+locale.setlocale( locale.LC_ALL, '' )
+import re
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
@@ -31,7 +34,7 @@ def airbnb_table_maker(airbnbdata):
     counter = 1
 
     for item in airbnbdata:
-      tr = temp.substitute(num=counter,url=item["url"], title=item["title"][:30],price=item["price"],town=item["town"],rating=item["rating"],reviews=item["review"])
+      tr = temp.substitute(num=counter,url=item["url"], title=item["title"][:30],price= locale.currency(item["price"]*1.1,grouping=True) if isinstance(item["price"],float) else ''  ,town=item["town"],rating=item["rating"],reviews=item["review"])
       table = table + tr
       counter = counter + 1
 
@@ -42,7 +45,7 @@ def airbnb_table_maker(airbnbdata):
                 <th>#</th>
                 <th>Name</th>
                 <th>Town</th>
-                <th>Price</th>
+                <th style="text-align: center;">Price<br>+ est. tax</th>
                 <th>Rating</th>
                 <th>Reviews</th>
               </tr>
